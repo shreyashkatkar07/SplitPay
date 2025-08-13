@@ -10,18 +10,18 @@ export const getGroupExpenses = query({
         const group = await ctx.db.get(groupId);
         if (!group) throw new Error("Group not found");
 
-        if (!group.members.some((m)=> m.userId === currentUser._id)) {
+        if (!group.members.some((m)=> String(m.userId) === String(currentUser._id))) {
             throw new Error("You are not a member of this group");
         }
 
         const expenses = await ctx.db
             .query("expenses")
-            .withIndex("byGroup", (q) => q.eq("groupId", groupId))
+            .withIndex("by_group", (q) => q.eq("groupId", groupId))
             .collect();
 
         const settlements = await ctx.db
             .query("settlements")
-            .withIndex("byGroup", (q) => q.eq("groupId", groupId))
+            .withIndex("by_group", (q) => q.eq("groupId", groupId))
             .collect();
 
         const memberDetails = await Promise.all(
@@ -75,6 +75,24 @@ export const getGroupExpenses = query({
             ledger[s.paidByUserId][s.receivedByUserId] -= s.amount;
         }
 
+        ids.forEach((a, i) => {
+            ids.forEach((b, j) => {
+                if (i >= j) return; // Only process each unordered pair once
+
+                const diff = ledger[a][b] - ledger[b][a];
+                
+                if (diff > 0) {
+                    ledger[a][b] = diff;
+                    ledger[b][a] = 0;
+                } else if (diff < 0) {
+                    ledger[b][a] = -diff;
+                    ledger[a][b] = 0;
+                } else {
+                    ledger[a][b] = ledger[b][a] = 0;
+                }
+            });
+        });
+        
         const balances = memberDetails.map(m=>({
             ...m,
             totalBalance: totals[m.id],
@@ -92,10 +110,12 @@ export const getGroupExpenses = query({
         });
 
         return {
-            id: group._id,
-            name: group.name,
-            description: group.description,
-            members: memberDetails,
+            group: {
+                id: group._id,
+                name: group.name,
+                description: group.description,
+                members: memberDetails,
+            },
             expenses,
             settlements,
             balances,

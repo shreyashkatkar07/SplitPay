@@ -6,7 +6,7 @@ export const getExpensesBetweenUsers = query({
     args:{userId:v.id("users")},
     handler: async(ctx,{userId})=>{
         const me = await ctx.runQuery(internal.users.getCurrentUser);
-        if (me.id === userId) throw new Error("Cannot query yourself");
+        if (me._id === userId) throw new Error("Cannot query yourself");
 
         const myPaid = await ctx.db
         .query("expenses")
@@ -41,11 +41,11 @@ export const getExpensesBetweenUsers = query({
             q.or(
                 q.and(
                     q.eq(q.field("paidByUserId"), me._id),
-                    q.eq(q.field("recievedByUserId"), userId)
+                    q.eq(q.field("receivedByUserId"), userId)
                 ),
                 q.and(
                     q.eq(q.field("paidByUserId"), userId),
-                    q.eq(q.field("recievedByUserId"), me._id)
+                    q.eq(q.field("receivedByUserId"), me._id)
                 )
             )
         ))
@@ -106,6 +106,6 @@ export const deleteExpense = mutation({
 
         await ctx.db.delete(args.expenseId)
 
-        return{sucess:true};
+        return{success:true};
     },
 });

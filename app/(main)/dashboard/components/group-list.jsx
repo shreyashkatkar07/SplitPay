@@ -18,7 +18,7 @@ const GroupList = ({groups}) => {
         const hasBalance = balance !== 0;
 
         return (
-          <Link href={`/dashboard/groups/${group.id}`} key={group.id} className='flex items-center justify-between p-2 rounded-md hover:bg-muted transition-colors'>
+          <Link href={`/groups/${group.id}`} key={group.id} className='flex items-center justify-between p-2 rounded-md hover:bg-muted transition-colors'>
           <div className='flex items-center gap-3'>
             <div className='bg-primary/10 rounded-md p-2'>
               <Users className='h-5 w-5 text-primary' />
