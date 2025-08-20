@@ -5,7 +5,7 @@ import { ConvexClientProvider } from "@/components/convex-client-provider";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "sonner";
 
-const inter = Inter({subsets: ["latin"],});
+const inter = Inter({ subsets: ["latin"], });
 
 export const metadata = {
   title: "Splitr",
@@ -22,14 +22,14 @@ export default function RootLayout({ children }) {
         className={`${inter.className}`}
       >
         <ClerkProvider>
-        <ConvexClientProvider>
-        <Header />
+          <ConvexClientProvider>
+            <Header />
 
-        <main className="min-h-screen">
-          {children}
-          <Toaster richColors />
-        </main>
-        </ConvexClientProvider>
+            <main className="min-h-screen">
+              {children}
+              <Toaster richColors />
+            </main>
+          </ConvexClientProvider>
         </ClerkProvider>
       </body>
     </html>

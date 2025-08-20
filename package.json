@@ -9,6 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@clerk/backend": "^2.9.3",
+    "@clerk/clerk-sdk-node": "^5.1.6",
     "@clerk/nextjs": "^6.28.1",
     "@google/generative-ai": "^0.24.1",
     "@hookform/resolvers": "^5.2.1",

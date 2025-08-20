@@ -292,9 +292,9 @@ export default function SettlementForm({ entityType, entityData, onSuccess }) {
                       }`}
                     >
                       {isOwing
-                        ? `They owe you $${Math.abs(member.netBalance).toFixed(2)}`
+                        ? `You owe $${Math.abs(member.netBalance).toFixed(2)}`
                         : isOwed
-                          ? `You owe $${Math.abs(member.netBalance).toFixed(2)}`
+                        ? `They owe you $${Math.abs(member.netBalance).toFixed(2)}`
                           : "Settled up"}
                     </div>
                   </div>

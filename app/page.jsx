@@ -170,7 +170,7 @@ export default function Home() {
       </section>
 
       <footer className="border-t bg-gray-50 py-12 text-center text-sm text-muted-foreground">
-        Made with ❤️ by Manan0p
+        Made with ❤️ by Shreyash
       </footer>
     </div>
   );
