@@ -8,8 +8,8 @@ import { Toaster } from "sonner";
 const inter = Inter({ subsets: ["latin"], });
 
 export const metadata = {
-  title: "Splitr",
-  description: "Your go to app for spliting expenses",
+  title: "SplitPay - Split Smarter",
+  description: "Create groups for trips or roommates, split expenses in multiple ways, track spending analytics, get payment reminders, and enjoy real-time updates. Smart settlements minimize payments—SplitPay makes shared expenses simple and organized.",
 };
 
 export default function RootLayout({ children }) {
@@ -25,7 +25,7 @@ export default function RootLayout({ children }) {
           <ConvexClientProvider>
             <Header />
 
-            <main className="min-h-screen">
+            <main className="min-h-screen mx-7">
               {children}
               <Toaster richColors />
             </main>
