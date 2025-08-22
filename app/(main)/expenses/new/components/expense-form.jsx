@@ -5,7 +5,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { api } from "@/convex/_generated/api";
-import { useConvexMutation, useConvexQuery } from "@/hooks/use-convex-query";
+import { useConvexQuery } from "@/hooks/use-convex-query";
+import { useConvexAction } from "@/hooks/use-convex-action";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -13,8 +14,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { ParticipantSelector } from "./participant-selector";
 import { GroupSelector } from "./group-selector";
-import { CategorySelector }  from "./category-selector";
-import { SplitSelector }  from "./split-selector";
+import { CategorySelector } from "./category-selector";
+import { SplitSelector } from "./split-selector";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import {
@@ -51,7 +52,9 @@ export function ExpenseForm({ type = "individual", onSuccess }) {
   // Mutations and queries
   const { data: currentUser } = useConvexQuery(api.users.getCurrentUser);
 
-  const createExpense = useConvexMutation(api.expenses.createExpense);
+  const createExpense = useConvexAction(
+    api.expenses.createExpenseWithReminders
+  );
   const categories = getAllCategories();
 
   // Set up form with validation
@@ -124,7 +127,8 @@ export function ExpenseForm({ type = "individual", onSuccess }) {
       const groupId = type === "individual" ? undefined : data.groupId;
 
       // Create the expense
-      await createExpense.mutate({
+
+      const result = await createExpense.run({
         description: data.description,
         amount: amount,
         category: data.category || "Other",
@@ -135,7 +139,17 @@ export function ExpenseForm({ type = "individual", onSuccess }) {
         groupId,
       });
 
-      toast.success("Expense created successfully!");
+      if (result?.emailResults && result.emailResults.length > 0) {
+        const failed = result.emailResults.filter((r) => !r.result.success);
+        if (failed.length > 0) {
+          toast.error("Some emails failed to send. Check console for details.");
+          console.error("Email send errors:", failed);
+        } else {
+          toast.success("Expense created and emails sent!");
+        }
+      } else {
+        toast.success("Expense created successfully!");
+      }
       reset(); // Reset form
 
       const otherParticipant = participants.find(

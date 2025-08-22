@@ -36,7 +36,7 @@ const BalanceSummary = ({balances}) => {
                             <span className='text-sm'>{item.name}</span>
                         </div>
 
-                        <span className='font-medium text-green-600'>${item.amount.toFixed(2)}</span>
+                        <span className='font-medium text-green-600'>₹{item.amount.toFixed(2)}</span>
                     </Link>
                 ))}
             </div>
@@ -60,7 +60,7 @@ const BalanceSummary = ({balances}) => {
                             <span className='text-sm'>{item.name}</span>
                         </div>
 
-                        <span className='font-medium text-green-600'>${item.amount.toFixed(2)}</span>
+                        <span className='font-medium text-green-600'>₹{item.amount.toFixed(2)}</span>
                     </Link>
                 ))}
             </div>

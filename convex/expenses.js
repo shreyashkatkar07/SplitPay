@@ -1,6 +1,8 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
-import { internal } from "./_generated/api";
+
+import { internal, api } from "./_generated/api";
+import { action } from "./_generated/server";
 
 export const getExpensesBetweenUsers = query({
     args:{userId:v.id("users")},
@@ -36,21 +38,21 @@ export const getExpensesBetweenUsers = query({
 
         expenses.sort((a, b) => b.date - a.date);
 
-        const settlements = await ctx.db.query("settlements").filter(q =>q.and(
-            q.eq(q.field("groupId"),undefined),
-            q.or(
-                q.and(
-                    q.eq(q.field("paidByUserId"), me._id),
-                    q.eq(q.field("receivedByUserId"), userId)
-                ),
-                q.and(
-                    q.eq(q.field("paidByUserId"), userId),
-                    q.eq(q.field("receivedByUserId"), me._id)
+        const settlements = await ctx.db.query("settlements").filter(q =>
+            q.and(
+                q.eq(q.field("groupId"), undefined),
+                q.or(
+                    q.and(
+                        q.eq(q.field("paidByUserId"), me._id),
+                        q.eq(q.field("receivedByUserId"), userId)
+                    ),
+                    q.and(
+                        q.eq(q.field("paidByUserId"), userId),
+                        q.eq(q.field("receivedByUserId"), me._id)
+                    )
                 )
             )
-        ))
-        .collect();
-
+        ).collect();
         settlements.sort((a, b) => b.date - a.date);
 
         let balance = 0;
@@ -125,10 +127,10 @@ export const createExpense = mutation({
         })),
         groupId: v.optional(v.id("groups")),
     },
-    handler: async (ctx, args) =>{
+    handler: async (ctx, args) => {
         const user = await ctx.runQuery(internal.users.getCurrentUser);
 
-        if(args.groupId) {
+        if (args.groupId) {
             const group = await ctx.db.get(args.groupId);
             if (!group) throw new Error("Group not found");
 
@@ -137,7 +139,6 @@ export const createExpense = mutation({
         }
 
         const totalSplitAmount = args.splits.reduce((sum, split) => sum + split.amount, 0);
-
         const tolerance = 0.01; // Allow a small tolerance for floating point errors
         if (Math.abs(totalSplitAmount - args.amount) > tolerance) {
             throw new Error("Split amounts must add up to the total expense amount");
@@ -155,6 +156,55 @@ export const createExpense = mutation({
             createdBy: user._id,
         });
 
+        // Only create the expense, do not send emails here (mutations cannot call actions)
         return expenseId;
+    }
+});
+
+// Action to create expense and send payment reminders
+export const createExpenseWithReminders = action({
+    args: {
+        description: v.string(),
+        amount: v.number(),
+        category: v.optional(v.string()),
+        date: v.number(),
+        paidByUserId: v.id("users"),
+        splitType: v.string(),
+        splits: v.array(v.object({
+            userId: v.id("users"),
+            amount: v.number(),
+            paid: v.boolean(),
+        })),
+        groupId: v.optional(v.id("groups")),
     },
+    handler: async (ctx, args) => {
+        // Call the mutation to create the expense
+        const expenseId = await ctx.runMutation(api.expenses.createExpense, args);
+
+    // Get payer info
+    const payer = await ctx.runQuery(internal.users.getCurrentUser, { userId: args.paidByUserId });
+
+        // Send email to all users who owe money (splits with paid: false and userId != paidByUserId)
+        const emailResults = [];
+        for (const split of args.splits) {
+            if (!split.paid && split.userId !== args.paidByUserId) {
+                // Fetch user info for this split
+                const owingUser = await ctx.runQuery(internal.users.getCurrentUser, { userId: split.userId });
+                if (owingUser && owingUser.email) {
+                    // Compose email
+                    const subject = `You owe ₹${split.amount} for '${args.description}'`;
+                    const html = `<p>Hi ${owingUser.name || "there"},</p><p>You owe <b>₹${split.amount}</b> for the expense: <b>${args.description}</b>.</p><p>Please settle up with ${payer?.name || "the payer"}.</p>`;
+                    // Call sendEmail action
+                    const result = await ctx.runAction(api.email.sendEmail, {
+                        to: owingUser.email,
+                        subject,
+                        html,
+                        text: `You owe ₹${split.amount} for '${args.description}'. Please settle up with ${payer?.name || "the payer"}.`,
+                    });
+                    emailResults.push({ to: owingUser.email, result });
+                }
+            }
+        }
+        return { expenseId, emailResults };
+    }
 });

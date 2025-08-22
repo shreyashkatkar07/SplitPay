@@ -30,8 +30,8 @@ const GroupList = ({groups}) => {
           </div>
 
           {hasBalance && (
-            <span className={`text-sm font-medium ${balance > 0 ? "text-green-600" : "text-red-600"}`}>
-              {balance > 0 ? "+" : " "}${balance.toFixed(2)}
+            <span className={`text-sm font-medium ₹{balance > 0 ? "text-green-600" : "text-red-600"}`}>
+              {balance > 0 ? "+" : " "}₹{balance.toFixed(2)}
             </span>
           )}
           </Link>

@@ -1,10 +1,11 @@
-import { mutation, query } from "./_generated/server";
+import { mutation, query, action } from "./_generated/server";
 import { v } from "convex/values";
 import { internal } from "./_generated/api";
 
 /* ============================================================================
  *  MUTATION: createSettlement
  * -------------------------------------------------------------------------- */
+
 
 export const createSettlement = mutation({
   args: {
@@ -19,7 +20,7 @@ export const createSettlement = mutation({
     // Use centralized getCurrentUser function
     const caller = await ctx.runQuery(internal.users.getCurrentUser);
 
-    /* ── basic validation ────────────────────────────────────────────────── */
+    // Basic validation
     if (args.amount <= 0) throw new Error("Amount must be positive");
     if (args.paidByUserId === args.receivedByUserId) {
       throw new Error("Payer and receiver cannot be the same user");
@@ -31,28 +32,76 @@ export const createSettlement = mutation({
       throw new Error("You must be either the payer or the receiver");
     }
 
-    /* ── group check (if provided) ───────────────────────────────────────── */
+    // Group check (if provided)
     if (args.groupId) {
       const group = await ctx.db.get(args.groupId);
       if (!group) throw new Error("Group not found");
-
       const isMember = (uid) => group.members.some((m) => m.userId === uid);
       if (!isMember(args.paidByUserId) || !isMember(args.receivedByUserId)) {
         throw new Error("Both parties must be members of the group");
       }
     }
 
-    /* ── insert ──────────────────────────────────────────────────────────── */
-    return await ctx.db.insert("settlements", {
+    // Insert settlement
+    const settlementId = await ctx.db.insert("settlements", {
       amount: args.amount,
       note: args.note,
-      date: Date.now(), // server‑side timestamp
+      date: Date.now(),
       paidByUserId: args.paidByUserId,
       receivedByUserId: args.receivedByUserId,
       groupId: args.groupId,
       relatedExpenseIds: args.relatedExpenseIds,
       createdBy: caller._id,
     });
+    return settlementId;
+  },
+});
+
+// Action to create settlement and send emails
+export const createSettlementWithEmail = action({
+  args: {
+    amount: v.number(),
+    note: v.optional(v.string()),
+    paidByUserId: v.id("users"),
+    receivedByUserId: v.id("users"),
+    groupId: v.optional(v.id("groups")),
+    relatedExpenseIds: v.optional(v.array(v.id("expenses"))),
+  },
+  handler: async (ctx, args) => {
+    // Call the mutation to create the settlement
+    const settlementId = await ctx.runMutation(internal.settlements.createSettlement, args);
+
+    // Fetch payer and receiver info
+    const payer = await ctx.runQuery(internal.users.getCurrentUser, { userId: args.paidByUserId });
+    const receiver = await ctx.runQuery(internal.users.getCurrentUser, { userId: args.receivedByUserId });
+
+    // Compose email content
+    const subject = `Settlement of ₹${args.amount} completed`;
+    const htmlPayer = `<p>Hi ${payer?.name || "there"},</p><p>You paid <b>₹${args.amount}</b> to ${receiver?.name || "the receiver"} as a settlement.</p>${args.note ? `<p>Note: ${args.note}</p>` : ""}`;
+    const htmlReceiver = `<p>Hi ${receiver?.name || "there"},</p><p>You received <b>₹${args.amount}</b> from ${payer?.name || "the payer"} as a settlement.</p>${args.note ? `<p>Note: ${args.note}</p>` : ""}`;
+
+    // Send emails to both parties
+    const emailResults = [];
+    if (payer && payer.email) {
+      const result = await ctx.runAction(internal.email.sendEmail, {
+        to: payer.email,
+        subject,
+        html: htmlPayer,
+        text: `You paid ₹${args.amount} to ${receiver?.name || "the receiver"} as a settlement.${args.note ? ` Note: ${args.note}` : ""}`,
+      });
+      emailResults.push({ to: payer.email, result });
+    }
+    if (receiver && receiver.email) {
+      const result = await ctx.runAction(internal.email.sendEmail, {
+        to: receiver.email,
+        subject,
+        html: htmlReceiver,
+        text: `You received ₹${args.amount} from ${payer?.name || "the payer"} as a settlement.${args.note ? ` Note: ${args.note}` : ""}`,
+      });
+      emailResults.push({ to: receiver.email, result });
+    }
+
+    return { settlementId, emailResults };
   },
 });
 

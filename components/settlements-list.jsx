@@ -71,7 +71,7 @@ const SettlementsList = ({
                             </div>
 
                             <div className='text-right'>
-                              <div className='font-medium'>${settlement.amount.toFixed(2)}</div>
+                              <div className='font-medium'>₹{settlement.amount.toFixed(2)}</div>
                               {isGroupSettlement ? (
                                 <Badge className={"mt-1"} variant={"outline"}>Group settlement</Badge>
                               ) : (

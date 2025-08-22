@@ -9,21 +9,23 @@ export const sendEmail = action({
     subject: v.string(),
     html: v.string(),
     text: v.optional(v.string()),
-    apiKey: v.string(),
   },
   handler: async (ctx, args) => {
-    const resend = new Resend(args.apiKey);
+    const resend = new Resend(process.env.RESEND_API_KEY);
 
     try {
+
+      // In Resend test mode, only send to your own email to avoid 403 errors
+      const testRecipient = "shreyashkatkar04@gmail.com";
       const result = await resend.emails.send({
         from: "SplitPay <onboarding@resend.dev>",
-        to: args.to,
+        to: testRecipient,
         subject: args.subject,
         html: args.html,
         text: args.text,
       });
 
-      console.log("Email sent successfully:", result);
+      // console.log("Email sent successfully:", result);
 
       return { success: true, id: result.id };
     } catch (error) {
