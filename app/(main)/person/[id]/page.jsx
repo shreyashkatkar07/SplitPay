@@ -69,7 +69,7 @@ const PersonPage = () => {
           </div>
 
           <div className="flex gap-2">
-            {balance == 0 ? (
+            {balance < 0 ? (
               <Button asChild variant={"outline"}>
                 <Link href={`/settlements/user/${params.id}`}>
                   <ArrowLeftRight className="mr-2 h-4 w-4" />
