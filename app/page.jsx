@@ -22,7 +22,7 @@ export default function Home() {
 
           <p className="mx-auto max-w-[700px] text-gray-500 md:text-xl/relaxed">
             Track shared expenses, split bills effortlessly, and settle up
-            quickly with Splitr. Never worry about who owes who again.
+            quickly with SplitPay. Never worry about who owes who again.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">

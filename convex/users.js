@@ -42,9 +42,36 @@ async function getOrCreateUser(ctx) {
  * Store or update the current user in DB
  */
 export const store = mutation({
-  args: {},
-  handler: async (ctx) => {
-    return (await getOrCreateUser(ctx))._id;
+  args: {
+    name: v.optional(v.string()),
+    email: v.optional(v.string()),
+    imageUrl: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Not authenticated");
+
+    let user = await ctx.db
+      .query("users")
+      .withIndex("by_token", (q) => q.eq("tokenIdentifier", identity.tokenIdentifier))
+      .first();
+
+    if (!user) {
+      const userId = await ctx.db.insert("users", {
+        name: args.name || identity.name || "Anonymous",
+        email: args.email || identity.email || "",
+        imageUrl: args.imageUrl || identity.pictureUrl || "",
+        tokenIdentifier: identity.tokenIdentifier,
+      });
+      user = await ctx.db.get(userId);
+    } else {
+      await ctx.db.patch(user._id, {
+        name: args.name || user.name,
+        email: args.email || user.email,
+        imageUrl: args.imageUrl || user.imageUrl,
+      });
+    }
+    return user._id;
   },
 });
 
