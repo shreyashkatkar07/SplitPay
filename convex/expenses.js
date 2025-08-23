@@ -126,6 +126,10 @@ export const createExpense = mutation({
             paid: v.boolean(),
         })),
         groupId: v.optional(v.id("groups")),
+        note: v.optional(v.string()),
+        repeat: v.optional(v.string()),
+        repeatEndDate: v.optional(v.number()),
+        repeatCount: v.optional(v.number()),
     },
     handler: async (ctx, args) => {
         const user = await ctx.runQuery(internal.users.getCurrentUser);
@@ -153,6 +157,10 @@ export const createExpense = mutation({
             splitType: args.splitType,
             splits: args.splits,
             groupId: args.groupId,
+            note: args.note,
+            repeat: args.repeat,
+            repeatEndDate: args.repeatEndDate,
+            repeatCount: args.repeatCount,
             createdBy: user._id,
         });
 
@@ -176,6 +184,10 @@ export const createExpenseWithReminders = action({
             paid: v.boolean(),
         })),
         groupId: v.optional(v.id("groups")),
+        note: v.optional(v.string()),
+        repeat: v.optional(v.string()),
+        repeatEndDate: v.optional(v.number()),
+        repeatCount: v.optional(v.number()),
     },
     handler: async (ctx, args) => {
         // Call the mutation to create the expense

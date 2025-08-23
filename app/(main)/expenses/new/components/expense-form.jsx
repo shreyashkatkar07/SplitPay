@@ -41,6 +41,10 @@ const expenseSchema = z.object({
   paidByUserId: z.string().min(1, "Payer is required"),
   splitType: z.enum(["equal", "percentage", "exact"]),
   groupId: z.string().optional(),
+  note: z.string().optional(),
+  repeat: z.enum(["off", "daily", "weekly", "monthly", "yearly"]).default("off"),
+  repeatEndDate: z.date().optional(),
+  repeatCount: z.coerce.number().optional(),
 });
 
 export function ExpenseForm({ type = "individual", onSuccess }) {
@@ -48,6 +52,7 @@ export function ExpenseForm({ type = "individual", onSuccess }) {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedGroup, setSelectedGroup] = useState(null);
   const [splits, setSplits] = useState([]);
+  const [splitValid, setSplitValid] = useState(true);
 
   // Mutations and queries
   const { data: currentUser } = useConvexQuery(api.users.getCurrentUser);
@@ -75,6 +80,10 @@ export function ExpenseForm({ type = "individual", onSuccess }) {
       paidByUserId: currentUser?._id || "",
       splitType: "equal",
       groupId: undefined,
+      note: "",
+      repeat: "off",
+      repeatEndDate: undefined,
+      repeatCount: undefined,
     },
   });
 
@@ -134,9 +143,13 @@ export function ExpenseForm({ type = "individual", onSuccess }) {
         category: data.category || "Other",
         date: data.date.getTime(), // Convert to timestamp
         paidByUserId: data.paidByUserId,
-        splitType: data.splitType,
+        splitType: data.splitType,  
         splits: formattedSplits,
         groupId,
+        note: data.note,
+        repeat: data.repeat,
+        repeatEndDate: data.repeatEndDate ? data.repeatEndDate.getTime() : undefined,
+        repeatCount: data.repeatCount,
       });
 
       if (result?.emailResults && result.emailResults.length > 0) {
@@ -168,8 +181,8 @@ export function ExpenseForm({ type = "individual", onSuccess }) {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <div className="space-y-4">
-        {/* Description and amount */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Description, amount, note, and recurrence */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="space-y-2">
             <Label htmlFor="description">Description</Label>
             <Input
@@ -185,7 +198,7 @@ export function ExpenseForm({ type = "individual", onSuccess }) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="amount">Amount</Label>
+            <Label htmlFor="amount">Amount(₹)</Label>
             <Input
               id="amount"
               placeholder="0.00"
@@ -196,6 +209,55 @@ export function ExpenseForm({ type = "individual", onSuccess }) {
             />
             {errors.amount && (
               <p className="text-sm text-red-500">{errors.amount.message}</p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="note">Note <span className="text-xs text-muted-foreground">(optional)</span></Label>
+            <Input
+              id="note"
+              placeholder="Add a note (optional)"
+              {...register("note")}
+            />
+            {errors.note && (
+              <p className="text-sm text-red-500">{errors.note.message}</p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="repeat">Repeat</Label>
+            <select id="repeat" className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" {...register("repeat")}> 
+              <option value="off">Off</option>
+              <option value="daily">Daily</option>
+              <option value="weekly">Weekly</option>
+              <option value="monthly">Monthly</option>
+              <option value="yearly">Yearly</option>
+            </select>
+            {errors.repeat && (
+              <p className="text-sm text-red-500">{errors.repeat.message}</p>
+            )}
+            {/* End date and count only if repeat is not off */}
+            {watch("repeat") !== "off" && (
+              <div className="flex flex-col gap-2 mt-2">
+                <div>
+                  <Label htmlFor="repeatEndDate">Repeat Until</Label>
+                  <Input
+                    id="repeatEndDate"
+                    type="date"
+                    {...register("repeatEndDate", { valueAsDate: true })}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="repeatCount">Repeat Count</Label>
+                  <Input
+                    id="repeatCount"
+                    type="number"
+                    min="1"
+                    placeholder="Number of times"
+                    {...register("repeatCount")}
+                  />
+                </div>
+              </div>
             )}
           </div>
         </div>
@@ -334,7 +396,8 @@ export function ExpenseForm({ type = "individual", onSuccess }) {
                 amount={parseFloat(amountValue) || 0}
                 participants={participants}
                 paidByUserId={paidByUserId}
-                onSplitsChange={setSplits} // Use setSplits directly
+                onSplitsChange={setSplits}
+                onValidityChange={setSplitValid}
               />
             </TabsContent>
             <TabsContent value="percentage" className="pt-4">
@@ -346,7 +409,8 @@ export function ExpenseForm({ type = "individual", onSuccess }) {
                 amount={parseFloat(amountValue) || 0}
                 participants={participants}
                 paidByUserId={paidByUserId}
-                onSplitsChange={setSplits} // Use setSplits directly
+                onSplitsChange={setSplits}
+                onValidityChange={setSplitValid}
               />
             </TabsContent>
             <TabsContent value="exact" className="pt-4">
@@ -358,7 +422,8 @@ export function ExpenseForm({ type = "individual", onSuccess }) {
                 amount={parseFloat(amountValue) || 0}
                 participants={participants}
                 paidByUserId={paidByUserId}
-                onSplitsChange={setSplits} // Use setSplits directly
+                onSplitsChange={setSplits}
+                onValidityChange={setSplitValid}
               />
             </TabsContent>
           </Tabs>
@@ -368,7 +433,7 @@ export function ExpenseForm({ type = "individual", onSuccess }) {
       <div className="flex justify-end">
         <Button
           type="submit"
-          disabled={isSubmitting || participants.length <= 1}
+          disabled={isSubmitting || participants.length <= 1 || !splitValid}
         >
           {isSubmitting ? "Creating..." : "Create Expense"}
         </Button>

@@ -9,10 +9,10 @@ import Link from "next/link";
 
 export default function Home() {
   return (
-    <div className=" flex flex-col pt-16">
+    <div className=" flex flex-col pt-10">
       <section className="mt-20 pb-12 space-y-10 md:space-y-20 px-5 ">
-        <div className="container mx-auto px-4 md:px-6 text-center space-y-6">
-          <Badge variant="outline" className="bg-green-100 text-green-700">
+  <div className="container mx-auto px-4 md:px-6 text-center space-y-4">
+          <Badge variant="outline" className="bg-green-100 text-green-700 text-base md:text-lg">
             Split Expenses. Simplify Life.
           </Badge>
 
@@ -54,9 +54,9 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="features" className="bg-gray-50 py-20">
+  <section id="features" className="bg-gray-50 py-10">
         <div className="container mx-auto px-4 md:px-6 text-center">
-          <Badge variant="outline" className="bg-green-100 text-green-700">
+          <Badge variant="outline" className="bg-green-100 text-green-700 text-base md:text-lg">
             Features
           </Badge>
 
@@ -70,14 +70,18 @@ export default function Home() {
           </p>
 
           <div className="mx-auto mt-12 grid max-w-5xl gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {FEATURES.map(({title,Icon,bg,color,description})=>(
-              <Card key={title} className="flex flex-col items-center p-6 space-y-4 text-center">
+            {FEATURES.map(({title,Icon,bg,color,description,upcoming})=>(
+              <Card key={title} className="relative flex flex-col items-center p-6 space-y-4 text-center">
+                {upcoming && (
+                  <span className="absolute top-3 left-3 bg-yellow-200 text-yellow-800 text-sm md:text-base font-semibold px-2 py-1 rounded shadow-sm z-10">
+                    Upcoming
+                  </span>
+                )}
                 <div className={`rounded-full p-3 ${bg}`}>
                   <Icon className={`h-6 w-6 ${color}`} />
                 </div>
-
                 <h3 className="text-xl font-bold">{title}</h3>
-                <p className="text-gray-500">{description}</p>
+                <p className="text-gray-500 text-base md:text-lg">{description}</p>
               </Card>
             ))}
           </div>
@@ -85,9 +89,9 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="how-it-works" className=" py-20">
+  <section id="how-it-works" className=" py-10">
         <div className="container mx-auto px-4 md:px-6 text-center">
-          <Badge variant="outline" className="bg-green-100 text-green-700">
+          <Badge variant="outline" className="bg-green-100 text-green-700 text-base md:text-lg">
             How It Works
           </Badge>
 
@@ -106,7 +110,7 @@ export default function Home() {
                 <div className="flex h-12 w-12 items-center justify-center rounded-full
                  bg-green-100 text-xl font-bold text-green-600">{label}</div>
                 <h3 className="text-xl font-bold">{title}</h3>
-                <p className="text-gray-500 text-center">{description}</p>
+                <p className="text-gray-500 text-center text-base md:text-lg">{description}</p>
               </div>
             ))}
           </div>
@@ -114,9 +118,9 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="bg-gray-50 py-20">
+  <section id="testimonials" className="bg-gray-50 py-10">
         <div className="container mx-auto px-4 md:px-6 text-center">
-          <Badge variant="outline" className="bg-green-100 text-green-700">
+          <Badge variant="outline" className="bg-green-100 text-green-700 text-base md:text-lg">
             Testimonials
           </Badge>
 
@@ -128,7 +132,7 @@ export default function Home() {
             {TESTIMONIALS.map(({quote,name,role,image})=>(
               <Card key={name} className="flex flex-col justify-between">
                 <CardContent className={"space-y-4 p-6"}>
-                  <p className="text-gray-500">{quote}</p>
+                  <p className="text-gray-500 text-base md:text-lg">{quote}</p>
 
                   <div className="flex items-center space-x-3">
                     <Avatar>
@@ -137,8 +141,8 @@ export default function Home() {
                     </Avatar>
 
                     <div className="text-left">
-                      <p className="text-sm font-medium">{name}</p>
-                      <p className="text-sm font-muted-foreground">{role}</p>
+                      <p className="text-base font-medium">{name}</p>
+                      <p className="text-base font-muted-foreground">{role}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -149,13 +153,13 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-20 gradient">
-        <div className="container mx-auto px-4 md:px-6 text-center space-y-6">
+  <section className="py-10 gradient">
+  <div className="container mx-auto px-4 md:px-6 text-center space-y-4">
           <h2 className="text-3xl font-extrabold tracking-tight md:text-4xl text-white">
             Ready to simplify expense sharing?
           </h2>
 
-          <p className="mx-auto max-w-[600px] text-green-100 md:text-xl/relaxed">
+          <p className="mx-auto max-w-[600px] text-green-100 text-base md:text-xl/relaxed">
             Join thousands of users who have made splitting expenses
             stress-free.
           </p>

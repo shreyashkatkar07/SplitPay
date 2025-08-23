@@ -6,8 +6,6 @@
 The smart way to split expenses with friends.
 Track shared expenses, split bills effortlessly, and settle up quickly with **SplitPay**. Never worry about who owes who again.
 
-👉 **Get Started** | 👉 **See How It Works**
-
 ---
 
 ## Features
@@ -15,11 +13,10 @@ Track shared expenses, split bills effortlessly, and settle up quickly with **Sp
 Everything you need to manage shared expenses:
 
 * **Group Expenses** – Create groups for roommates, trips, or events.
-* **Smart Settlements** – Minimize the number of payments with our algorithm.
-* **Expense Analytics** – Track spending patterns and discover insights.
-* **Payment Reminders** – Get automated notifications for pending debts.
 * **Multiple Split Types** – Split equally, by percentage, or exact amounts.
 * **Real-time Updates** – Instantly see new expenses and repayments.
+* **Payment Reminders** – Get automated notifications for pending debts.
+* **Expense Analytics** – Track spending patterns and discover insights.
 
 ---
 
@@ -35,13 +32,16 @@ Splitting expenses has never been easier:
 
 ## Tech Stack
 
-* **Frontend:** [Next.js](https://nextjs.org/) (SSR/SSG, routing), [React](https://react.dev/), [Tailwind CSS](https://tailwindcss.com/)
-* **Backend:** [Convex](https://convex.dev/) (Database + Backend-as-a-Service)
-* **Authentication:** [Clerk](https://clerk.com/)
-* **Workflows/CRON:** [Inngest](https://www.inngest.com/)
-* **UI/UX:** [Sonner](https://sonner.emilkowal.ski/) (toast notifications), [Lucide-react](https://lucide.dev/) (icons)
-* **Tooling:** ESLint, PostCSS, Node.js
-* **Deployment:** Vercel (or similar)
+This project is a Full Stack AI Splitwise Clone built with:
+
+- **Frontend:** [Next.js](https://nextjs.org/) (SSR/SSG, routing, API routes), [React](https://react.dev/), [Tailwind CSS](https://tailwindcss.com/) (utility-first styling), [Shadcn UI](https://ui.shadcn.com/) (modern UI components)
+- **Backend & Database:** [Convex](https://convex.dev/) (serverless backend, real-time database, actions/mutations)
+- **Authentication:** [Clerk](https://clerk.com/) (user sign-in, sign-up, session management)
+- **Workflows/CRON/Background Jobs:** [Inngest](https://www.inngest.com/) (scheduled jobs, background processing)
+- **Email:** [Resend](https://resend.com/) (transactional email delivery)
+- **UI/UX:** [Sonner](https://sonner.emilkowal.ski/) (toast notifications), [Lucide-react](https://lucide.dev/) (icons)
+- **Tooling:** ESLint (linting), PostCSS (CSS processing), Node.js (runtime)
+- **Deployment:** [Vercel](https://vercel.com/) (hosting, serverless deployment, global CDN)
 
 ---
 
@@ -66,8 +66,6 @@ NEXT_PUBLIC_CONVEX_URL=
 # Clerk
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
 CLERK_SECRET_KEY=
-NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
-NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
 CLERK_JWT_ISSUER_DOMAIN=
 
 # Email / APIs

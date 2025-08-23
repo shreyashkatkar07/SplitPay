@@ -29,6 +29,10 @@ export default defineSchema({
             })
         ),
         groupId:v.optional(v.id("groups")),
+        note:v.optional(v.string()),
+        repeat:v.optional(v.string()), // 'off', 'daily', 'weekly', 'monthly', 'yearly'
+        repeatEndDate:v.optional(v.number()), // timestamp for when to stop repeating
+        repeatCount:v.optional(v.number()), // number of times to repeat
         createdBy:v.id("users"),
     })
         .index("by_group", ["groupId"])

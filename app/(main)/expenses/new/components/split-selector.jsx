@@ -12,6 +12,7 @@ export function SplitSelector({
   participants,
   paidByUserId,
   onSplitsChange,
+  onValidityChange,
 }) {
   const { user } = useUser();
   const [splits, setSplits] = useState([]);
@@ -83,6 +84,16 @@ export function SplitSelector({
     if (onSplitsChange) {
       onSplitsChange(newSplits);
     }
+    // Notify parent about validity
+    if (onValidityChange) {
+      if (type === "percentage") {
+        onValidityChange(Math.abs(newTotalPercentage - 100) < 0.01);
+      } else if (type === "exact") {
+        onValidityChange(Math.abs(newTotalAmount - amount) < 0.01);
+      } else {
+        onValidityChange(true);
+      }
+    }
   }, [type, amount, participants, paidByUserId, onSplitsChange]);
 
   // Update the percentage splits - no automatic adjustment of other values
@@ -117,6 +128,16 @@ export function SplitSelector({
     // Notify parent about the split changes
     if (onSplitsChange) {
       onSplitsChange(updatedSplits);
+    }
+    // Notify parent about validity
+    if (onValidityChange) {
+      if (type === "percentage") {
+        onValidityChange(Math.abs(newTotalPercentage - 100) < 0.01);
+      } else if (type === "exact") {
+        onValidityChange(Math.abs(newTotalAmount - amount) < 0.01);
+      } else {
+        onValidityChange(true);
+      }
     }
   };
 
