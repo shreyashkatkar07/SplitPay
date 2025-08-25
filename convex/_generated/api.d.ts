@@ -14,6 +14,7 @@ import type {
   FunctionReference,
 } from "convex/server";
 import type * as contacts from "../contacts.js";
+import type * as crons from "../crons.js";
 import type * as dashboard from "../dashboard.js";
 import type * as email from "../email.js";
 import type * as expenses from "../expenses.js";
@@ -24,6 +25,7 @@ import type * as reminders from "../reminders.js";
 import type * as seed from "../seed.js";
 import type * as settlements from "../settlements.js";
 import type * as users from "../users.js";
+import type * as usersAction from "../usersAction.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -35,6 +37,7 @@ import type * as users from "../users.js";
  */
 declare const fullApi: ApiFromModules<{
   contacts: typeof contacts;
+  crons: typeof crons;
   dashboard: typeof dashboard;
   email: typeof email;
   expenses: typeof expenses;
@@ -45,6 +48,7 @@ declare const fullApi: ApiFromModules<{
   seed: typeof seed;
   settlements: typeof settlements;
   users: typeof users;
+  usersAction: typeof usersAction;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,
