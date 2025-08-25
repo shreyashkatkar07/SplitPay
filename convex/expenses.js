@@ -184,10 +184,10 @@ export const createExpenseWithReminders = action({
             paid: v.boolean(),
         })),
         groupId: v.optional(v.id("groups")),
-        note: v.optional(v.string()),
-        repeat: v.optional(v.string()),
-        repeatEndDate: v.optional(v.number()),
-        repeatCount: v.optional(v.number()),
+            note: v.optional(v.string()), // Added note field
+            repeat: v.optional(v.string()), // Added repeat field
+            repeatEndDate: v.optional(v.number()), // Added repeatEndDate field
+            repeatCount: v.optional(v.number()), // Added repeatCount field
     },
     handler: async (ctx, args) => {
         // Call the mutation to create the expense
