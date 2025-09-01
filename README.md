@@ -1,40 +1,43 @@
 # SplitPay
 
+
 ## About
 
 **Split Expenses. Simplify Life.**
-The smart way to split expenses with friends.
-Track shared expenses, split bills effortlessly, and settle up quickly with **SplitPay**. Never worry about who owes who again.
+
+SplitPay is the smart way to split expenses with friends, roommates, or groups. Effortlessly track, split, and settle shared bills—no more confusion over who owes what. Enjoy real-time updates, secure settlements, and a seamless experience for both group and 1:1 expenses.
 
 ---
 
 
 ## Unique Feature: Controlled Settlements
 
-> **🚀 Unlike Splitwise, only the person who is owed can initiate a settlement in SplitPay.**
-> 
-> This prevents accidental or premature settlements and ensures that only the rightful recipient can clear a debt. This is a unique safeguard not found in Splitwise!
+> **🚀 Only the person who is owed can settle up—adding a layer of control and security not found in Splitwise.**
 
 ---
 
+
 ## Features
 
-Everything you need to manage shared expenses:
+Everything you need to split expenses:
 
-* **Group Expenses** – Create groups for roommates, trips, or events.
-* **Multiple Split Types** – Split equally, by percentage, or exact amounts.
-* **Real-time Updates** – Instantly see new expenses and repayments.
-* **Payment Reminders** – Get automated notifications for pending debts. *(under development)*
-* **Expense Analytics** – Track spending patterns and discover insights. *(under development)*
-* **Recurring Expenses** – Automatically add repeating expenses for subscriptions, rent, and more. *(under development)*
+* **1:1 Expenses** – Split and settle directly with a friend for any one-on-one activity.
+* **Group Expenses** – Create groups for roommates, trips, or events to keep expenses organized.
+* **Multiple Split Types** – Split equally, by percentage, or by exact amounts to fit any scenario.
+* **Controlled Settlements** – Only the person who is owed can initiate a settlement. *(Unique)*
+* **Real-time Updates** – See new expenses and repayments the moment your friends add them.
+* **Payment Reminders** – Automated reminders for pending debts. *(upcoming)*
+* **Expense Analytics** – Track spending patterns and discover insights. *(upcoming)*
+* **Recurring Expenses** – Automatically add repeating expenses for subscriptions, rent, and more. *(upcoming)*
+
 
 ## How It Works
 
 Splitting expenses has never been easier:
 
-1. **Create or Join a Group** – Start a group for your roommates, trip, or event and add friends.
-2. **Add Expenses** – Record who paid and how the bill should be split.
-3. **Settle Up** – View balances and log payments when debts are cleared.
+1. **Start or Select a Group/Person** – Create a group for shared expenses or pick a friend for 1:1 splits.
+2. **Add an Expense** – Enter the amount, choose who paid, and split the bill your way.
+3. **Settle Up Securely** – See balances and let the person who is owed record the payment.
 
 ---
 
