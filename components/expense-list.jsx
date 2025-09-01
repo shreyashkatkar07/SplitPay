@@ -131,7 +131,7 @@ const ExpenseList = ({
                                 </div>
 
                                 {/* Show delete button if user can delete */}
-                                {showDeleteOption && (
+                                {/* {showDeleteOption && (
                                     <Button 
                                         variant={"ghost"}
                                         size={"icon"}
@@ -140,7 +140,7 @@ const ExpenseList = ({
                                         <Trash2 className='h-4 w-4' />
                                         <span className='sr-only'>Delete expense</span>
                                     </Button>
-                                )}
+                                )} */}
                             </div>
                         </div>
 

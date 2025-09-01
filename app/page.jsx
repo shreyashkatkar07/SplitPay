@@ -70,11 +70,16 @@ export default function Home() {
           </p>
 
           <div className="mx-auto mt-12 grid max-w-5xl gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {FEATURES.map(({title,Icon,bg,color,description,upcoming})=>(
+            {FEATURES.map(({title,Icon,bg,color,description,upcoming,unique})=>(
               <Card key={title} className="relative flex flex-col items-center p-6 space-y-4 text-center">
                 {upcoming && (
                   <span className="absolute top-3 left-3 bg-yellow-200 text-yellow-800 text-sm md:text-base font-semibold px-2 py-1 rounded shadow-sm z-10">
                     Upcoming
+                  </span>
+                )}
+                {unique && (
+                  <span className="absolute top-3 left-3 bg-purple-200 text-purple-800 text-sm md:text-base font-semibold px-2 py-1 rounded shadow-sm z-10">
+                    Unique
                   </span>
                 )}
                 <div className={`rounded-full p-3 ${bg}`}>
