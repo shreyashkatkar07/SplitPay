@@ -42,7 +42,7 @@ This project is a Full Stack Splitwise Clone built with:
 - **Authentication:** [Clerk](https://clerk.com/)
 - **Workflows/Background Jobs:** [Inngest](https://www.inngest.com/)
 - **Email:** [Resend](https://resend.com/)
-- **UI/UX:** [Sonner](https://sonner.emilkowal.ski/), [Lucide-react](https://lucide.dev/)
+- **UI/UX:** [shadcn/ui](https://ui.shadcn.com/), [Sonner](https://sonner.emilkowal.ski/), [Lucide-react](https://lucide.dev/)
 - **Deployment:** [Vercel](https://vercel.com/)
 
 ---

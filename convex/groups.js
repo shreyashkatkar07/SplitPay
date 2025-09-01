@@ -1,4 +1,51 @@
-import { query } from "./_generated/server";
+// Delete a group (admin only)
+export const deleteGroup = mutation({
+  args: { groupId: v.id("groups") },
+  handler: async (ctx, { groupId }) => {
+    const currentUser = await ctx.runQuery(internal.users.getCurrentUser);
+    const group = await ctx.db.get(groupId);
+    if (!group) throw new Error("Group not found");
+    const me = group.members.find((m) => m.userId === currentUser._id);
+    if (!me || me.role !== "admin") throw new Error("Only admin can delete group");
+    await ctx.db.delete(groupId);
+    return true;
+  },
+});
+import { query, mutation } from "./_generated/server";
+// Add a member to a group by email
+export const addMember = mutation({
+  args: { groupId: v.id("groups"), email: v.string() },
+  handler: async (ctx, { groupId, email }) => {
+    const currentUser = await ctx.runQuery(internal.users.getCurrentUser);
+    const group = await ctx.db.get(groupId);
+    if (!group) throw new Error("Group not found");
+    // Only allow group members to add
+    if (!group.members.some((m) => m.userId === currentUser._id)) throw new Error("Not a group member");
+    // Find user by email
+    const users = await ctx.db.query("users").filter((q) => q.eq(q.field("email"), email)).collect();
+    if (users.length === 0) throw new Error("No user with that email");
+    const userToAdd = users[0];
+    if (group.members.some((m) => m.userId === userToAdd._id)) throw new Error("User already a member");
+    // Add as normal member
+  group.members.push({ userId: userToAdd._id, role: "member", joinedAt: Date.now(), totalBalance: 0 });
+    await ctx.db.patch(groupId, { members: group.members });
+    return true;
+  },
+});
+
+// Leave a group
+export const leaveGroup = mutation({
+  args: { groupId: v.id("groups") },
+  handler: async (ctx, { groupId }) => {
+    const currentUser = await ctx.runQuery(internal.users.getCurrentUser);
+    const group = await ctx.db.get(groupId);
+    if (!group) throw new Error("Group not found");
+    const newMembers = group.members.filter((m) => m.userId !== currentUser._id);
+    if (newMembers.length === group.members.length) throw new Error("You are not a member");
+    await ctx.db.patch(groupId, { members: newMembers });
+    return true;
+  },
+});
 import { v } from "convex/values";
 import { internal } from "./_generated/api";
 
@@ -123,30 +170,38 @@ export const getGroupExpenses = query({
     /* ----------  apply expenses ---------- */
     for (const exp of expenses) {
       const payer = exp.paidByUserId;
+      if (!(payer in totals)) continue; // skip if payer not in group
       for (const split of exp.splits) {
         if (split.userId === payer || split.paid) continue; // skip payer & settled
         const debtor = split.userId;
         const amt = split.amount;
+        if (!(debtor in totals)) continue; // skip if debtor not in group
 
         totals[payer] += amt;
         totals[debtor] -= amt;
 
-        ledger[debtor][payer] += amt; // debtor owes payer
+        if (ledger[debtor] && ledger[debtor][payer] !== undefined) {
+          ledger[debtor][payer] += amt; // debtor owes payer
+        }
       }
     }
 
     /* ----------  apply settlements ---------- */
     for (const s of settlements) {
+      if (!(s.paidByUserId in totals) || !(s.receivedByUserId in totals)) continue;
       totals[s.paidByUserId] += s.amount;
       totals[s.receivedByUserId] -= s.amount;
 
-      ledger[s.paidByUserId][s.receivedByUserId] -= s.amount; // they paid back
+      if (ledger[s.paidByUserId] && ledger[s.paidByUserId][s.receivedByUserId] !== undefined) {
+        ledger[s.paidByUserId][s.receivedByUserId] -= s.amount; // they paid back
+      }
     }
 
     /* ----------  net the pair‑wise ledger ---------- */
     ids.forEach((a) => {
       ids.forEach((b) => {
         if (a >= b) return; // visit each unordered pair once
+        if (!ledger[a] || !ledger[b] || ledger[a][b] === undefined || ledger[b][a] === undefined) return;
         const diff = ledger[a][b] - ledger[b][a];
         if (diff > 0) {
           ledger[a][b] = diff;

@@ -88,7 +88,10 @@ export const getCurrentUser = query({
  * Search users by name/email (excluding current user)
  */
 export const searchUsers = query({
-  args: { query: v.string() },
+  args: {
+    query: v.string(),
+    excludeIds: v.optional(v.array(v.id("users"))),
+  },
   handler: async (ctx, args) => {
     const currentUser = await getOrCreateUser(ctx);
 
@@ -113,8 +116,14 @@ export const searchUsers = query({
       ),
     ];
 
+    // Exclude self and any IDs in excludeIds
+    const excludeSet = new Set([
+      currentUser._id,
+      ...(args.excludeIds || []),
+    ]);
+
     return users
-      .filter((user) => user._id !== currentUser._id) // Exclude self
+      .filter((user) => !excludeSet.has(user._id))
       .map((user) => ({
         id: user._id,
         name: user.name,

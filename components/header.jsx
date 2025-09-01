@@ -1,9 +1,11 @@
+
+// Mark this file as a Client Component (Next.js)
 "use client";
 
+
+// Import hooks and components for user state, auth, navigation, and UI
 import { useStoreUser } from "@/hooks/use-store-user";
 import {
-  SignedIn,
-  SignedOut,
   SignInButton,
   SignUpButton,
   UserButton,
@@ -17,13 +19,18 @@ import BarLoader from "react-spinners/BarLoader";
 import { Button } from "./ui/button";
 import { LayoutDashboard } from "lucide-react";
 
+
+// Header displays the top navigation bar with logo, links, and auth actions
 const Header = () => {
+  // Get loading state for user data
   const { isLoading } = useStoreUser();
+  // Get current path for conditional rendering
   const path = usePathname();
 
   return (
     <header className="fixed top-0 w-full border-b bg-white/95 backdrop-blur z-50 supports-[backdrop-filter]:bg-white/60">
       <nav className="container mx-auto px-4 h-16 flex items-center justify-between">
+        {/* Logo and home link */}
         <Link href="/" className="flex items-center gap-2">
           <Image
             src={"/logos/logo.png"}
@@ -34,6 +41,7 @@ const Header = () => {
           />
         </Link>
 
+        {/* Show feature links only on home page and medium+ screens */}
         {path === "/" && (
           <div className="hidden md:flex items-center gap-6">
             <Link
@@ -57,7 +65,9 @@ const Header = () => {
           </div>
         )}
 
+        {/* Authenticated and unauthenticated user actions */}
         <div className="flex items-center gap-4">
+          {/* If user is authenticated, show dashboard and user menu */}
           <Authenticated>
             <Link href="/dashboard">
               <Button
@@ -72,9 +82,11 @@ const Header = () => {
                 <LayoutDashboard className="h-4 w-4" />
               </Button>
             </Link>
+            {/* User profile menu */}
             <UserButton />
           </Authenticated>
 
+          {/* If user is not authenticated, show sign in/up buttons */}
           <Unauthenticated>
             <SignInButton>
               <Button variant={"ghost"}>Sign In</Button>
@@ -89,9 +101,12 @@ const Header = () => {
         </div>
       </nav>
 
+      {/* Show loading bar while user data is loading */}
       {isLoading && <BarLoader width={"100%"} color="#36d7b7" />}
     </header>
   );
 };
 
+
+// Export the Header component for use in other parts of the app
 export default Header;

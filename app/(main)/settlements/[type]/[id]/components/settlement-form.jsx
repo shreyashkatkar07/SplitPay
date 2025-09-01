@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -28,28 +28,54 @@ const settlementSchema = z.object({
 });
 
 export default function SettlementForm({ entityType, entityData, onSuccess }) {
+  // Defensive: if group, ensure balances exists
+  if (entityType === "group" && (!entityData || !Array.isArray(entityData.balances))) {
+    return <div className="text-red-500">Error: Group balances data is missing or invalid.</div>;
+  }
   const { data: currentUser } = useConvexQuery(api.users.getCurrentUser);
   const createSettlement = useConvexAction(
     api.settlements.createSettlementWithEmail
   );
 
-  // Set up form with validation
+  // For group settlements, we need to select a member
+  const [selectedGroupMemberId, setSelectedGroupMemberId] = useState(null);
+
+  // Determine default payment direction
+  let defaultPaymentType = "youPaid";
+  if (entityType === "user" && entityData.netBalance > 0) {
+    defaultPaymentType = "theyPaid";
+  }
+  // For group, will update on member select
+
   const {
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(settlementSchema),
     defaultValues: {
       amount: "",
       note: "",
-      paymentType: "youPaid",
+      paymentType: defaultPaymentType,
     },
   });
 
   // Get selected payment direction
   const paymentType = watch("paymentType");
+
+  // For group: update paymentType when member changes
+  useEffect(() => {
+    if (entityType === "group" && selectedGroupMemberId) {
+      const member = entityData.balances.find((m) => m.userId === selectedGroupMemberId);
+      if (member && member.netBalance > 0) {
+        setValue("paymentType", "theyPaid");
+      } else {
+        setValue("paymentType", "youPaid");
+      }
+    }
+  }, [entityType, selectedGroupMemberId, entityData.balances, setValue]);
 
   // Single user settlement
   const handleUserSettlement = async (data) => {
@@ -133,8 +159,7 @@ export default function SettlementForm({ entityType, entityData, onSuccess }) {
     }
   };
 
-  // For group settlements, we need to select a member
-  const [selectedGroupMemberId, setSelectedGroupMemberId] = useState(null);
+
 
   if (!currentUser) return null;
 
@@ -175,15 +200,15 @@ export default function SettlementForm({ entityType, entityData, onSuccess }) {
         <div className="space-y-2">
           <Label>Who paid?</Label>
           <RadioGroup
-            defaultValue="youPaid"
+            defaultValue={defaultPaymentType}
             {...register("paymentType")}
             className="flex flex-col space-y-2"
             onValueChange={(value) => {
-              // This manual approach is needed because RadioGroup doesn't work directly with react-hook-form
               register("paymentType").onChange({
                 target: { name: "paymentType", value },
               });
             }}
+            disabled={entityData.netBalance > 0}
           >
             <div className="flex items-center space-x-2 border rounded-md p-3">
               <RadioGroupItem value="youPaid" id="youPaid" />
@@ -213,6 +238,9 @@ export default function SettlementForm({ entityType, entityData, onSuccess }) {
               </Label>
             </div>
           </RadioGroup>
+          {entityData.netBalance > 0 && (
+            <p className="text-sm text-amber-600 mt-1">Only the person who is owed can settle up.</p>
+          )}
         </div> */}
 
         {/* Amount */}
@@ -312,114 +340,48 @@ export default function SettlementForm({ entityType, entityData, onSuccess }) {
           )}
         </div>
 
-        {selectedGroupMemberId && (
-          <>
-            {/* Payment direction
-            <div className="space-y-2">
-              <Label>Who paid?</Label>
-              <RadioGroup
-                defaultValue="youPaid"
-                {...register("paymentType")}
-                className="flex flex-col space-y-2"
-                onValueChange={(value) => {
-                  register("paymentType").onChange({
-                    target: { name: "paymentType", value },
-                  });
-                }}
-              >
-                <div className="flex items-center space-x-2 border rounded-md p-3">
-                  <RadioGroupItem value="youPaid" id="youPaid" />
-                  <Label htmlFor="youPaid" className="flex-grow cursor-pointer">
-                    <div className="flex items-center">
-                      <Avatar className="h-6 w-6 mr-2">
-                        <AvatarImage src={currentUser.imageUrl} />
-                        <AvatarFallback>
-                          {currentUser.name.charAt(0)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <span>
-                        You paid{" "}
-                        {
-                          groupMembers.find(
-                            (m) => m.userId === selectedGroupMemberId
-                          )?.name
-                        }
-                      </span>
-                    </div>
-                  </Label>
-                </div>
-
-                <div className="flex items-center space-x-2 border rounded-md p-3">
-                  <RadioGroupItem value="theyPaid" id="theyPaid" />
-                  <Label
-                    htmlFor="theyPaid"
-                    className="flex-grow cursor-pointer"
-                  >
-                    <div className="flex items-center">
-                      <Avatar className="h-6 w-6 mr-2">
-                        <AvatarImage
-                          src={
-                            groupMembers.find(
-                              (m) => m.userId === selectedGroupMemberId
-                            )?.imageUrl
-                          }
-                        />
-                        <AvatarFallback>
-                          {groupMembers
-                            .find((m) => m.userId === selectedGroupMemberId)
-                            ?.name.charAt(0)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <span>
-                        {
-                          groupMembers.find(
-                            (m) => m.userId === selectedGroupMemberId
-                          )?.name
-                        }{" "}
-                        paid you
-                      </span>
-                    </div>
-                  </Label>
-                </div>
-              </RadioGroup>
-            </div> */}
-
-            {/* Amount */}
-            <div className="space-y-2">
-              <Label htmlFor="amount">Amount</Label>
-              <div className="relative flex items-center">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">₹</span>
-                <Input
-                  id="amount"
-                  placeholder="0.00"
-                  type="number"
-                  step="0.01"
-                  min="0.01"
-                  className="pl-7"
-                  {...register("amount")}
-                />
+        {selectedGroupMemberId && (() => {
+          const member = groupMembers.find((m) => m.userId === selectedGroupMemberId);
+          if (!member) return null;
+          if (member.netBalance < 0) {
+            return (
+              <div className="text-amber-600 text-sm mt-2">
+                You cannot settle up with this member because they owe you. Only the person who is owed can initiate a settlement.
               </div>
-              {errors.amount && (
-                <p className="text-sm text-red-500">{errors.amount.message}</p>
-              )}
-            </div>
-
-            {/* Note */}
-            <div className="space-y-2">
-              <Label htmlFor="note">Note (optional)</Label>
-              <Textarea
-                id="note"
-                placeholder="Dinner, rent, etc."
-                {...register("note")}
-              />
-            </div>
-          </>
-        )}
+            );
+          }
+          return (
+            <>
+              {/* Amount */}
+              <div className="space-y-2">
+                <Label htmlFor="amount">Amount</Label>
+                <div className="relative flex items-center">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">₹</span>
+                  <Input
+                    id="amount"
+                    placeholder="0.00"
+                    type="number"
+                    step="0.01"
+                    min="0.01"
+                    className="pl-7"
+                    {...register("amount")}
+                  />
+                </div>
+                {errors.amount && (
+                  <p className="text-sm text-red-500">{errors.amount.message}</p>
+                )}
+              </div>
+            </>
+          );
+        })()}
 
         <Button
           type="submit"
           className="w-full"
-          disabled={isSubmitting || !selectedGroupMemberId}
+          disabled={isSubmitting || !selectedGroupMemberId || (() => {
+            const member = groupMembers.find((m) => m.userId === selectedGroupMemberId);
+            return member && member.netBalance < 0;
+          })()}
         >
           {isSubmitting ? "Recording..." : "Record settlement"}
         </Button>

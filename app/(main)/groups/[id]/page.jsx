@@ -3,6 +3,11 @@
 import ExpenseList from '@/components/expense-list';
 import {GroupBalances} from '@/components/group-balances';
 import GroupMembers from '@/components/group-members';
+// import AddGroupMember from './add-group-member';
+import { ParticipantSelector } from "@/app/(main)/expenses/new/components/participant-selector";
+import LeaveGroup from './leave-group';
+import AddGroupMember from './add-group-member';
+import DeleteGroup from './delete-group';
 import SettlementsList from '@/components/settlements-list';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -22,7 +27,17 @@ const GroupPage = () => {
       const router = useRouter();
       const [activeTab, setActiveTab] = useState('profile');
   
-      const {data, isLoading} = useConvexQuery(api.groups.getGroupExpenses,{groupId: params.id});
+  const {data, isLoading, error} = useConvexQuery(api.groups.getGroupExpenses,{groupId: params.id});
+  const { data: currentUser } = useConvexQuery(api.users.getCurrentUser);
+
+      // Defensive: redirect if not a member or error
+      React.useEffect(() => {
+        if (error && error.message) {
+          if (error.message.includes('not a member') || error.message.includes('Group not found')) {
+            router.replace('/dashboard');
+          }
+        }
+      }, [error, router]);
   
       if(isLoading) { 
           return (
@@ -31,6 +46,15 @@ const GroupPage = () => {
             </div>
           );    
       }
+      if (error && error.message && (error.message.includes('Group not found') || error.message.includes('not a member'))) {
+        return (
+          <div className='container mx-auto py-12 text-center'>
+            <h2 className='text-2xl font-bold mb-4'>Group not accessible</h2>
+            <p className='mb-4'>The group you are looking for does not exist, has been deleted, or you are no longer a member.</p>
+            <Button onClick={() => router.replace('/dashboard')}>Go to Dashboard</Button>
+          </div>
+        );
+      }
   
       const group = data?.group;
       const members = group?.members || [];
@@ -38,6 +62,11 @@ const GroupPage = () => {
       const settlements = data?.settlements || [];
       const balances   = data?.balances || [];
       const userLookupMap = data?.userLookupMap || {};
+      const isAdmin = (() => {
+        if (!group || !currentUser) return false;
+        const me = group.members.find((m) => m.id === currentUser._id);
+        return me && me.role === "admin";
+      })();
   
   return (
     <div className='container mx-auto py-6 max-w-4xl'>
@@ -95,6 +124,14 @@ const GroupPage = () => {
               </CardHeader>
               <CardContent>
                 <GroupMembers members={members} />
+                {isAdmin ? (
+                  <>
+                    <AddGroupMember groupId={params.id} />
+                    <DeleteGroup groupId={params.id} onDeleted={() => router.replace('/dashboard')} />
+                  </>
+                ) : (
+                  <LeaveGroup groupId={params.id} onLeft={() => router.replace('/dashboard')} />
+                )}
               </CardContent>
             </Card>
           </div>

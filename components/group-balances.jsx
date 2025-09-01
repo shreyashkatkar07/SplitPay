@@ -1,7 +1,12 @@
+
+// Mark this file as a Client Component (Next.js)
 "use client";
 
+
+// Import custom hook for fetching data from Convex backend
 import { useConvexQuery } from "@/hooks/use-convex-query";
 import { api } from "@/convex/_generated/api";
+// Import UI components for avatars and icons
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ArrowUpCircle, ArrowDownCircle } from "lucide-react";
 
@@ -11,15 +16,19 @@ import { ArrowUpCircle, ArrowDownCircle } from "lucide-react";
  *   id:           string;           // user id
  *   name:         string;
  *   imageUrl?:    string;
- *   totalBalance: number;           // + ve ⇒ they are owed, – ve ⇒ they owe
+ *   totalBalance: number;           // +ve: they are owed, -ve: they owe
  *   owes:   { to: string;   amount: number }[];  // this member → others
  *   owedBy: { from: string; amount: number }[];  // others → this member
  * }
  */
+
+// GroupBalances displays the current user's group balance and who owes whom
 export function GroupBalances({ balances }) {
+  // Fetch current user info from backend
   const { data: currentUser } = useConvexQuery(api.users.getCurrentUser);
 
   /* ───── guards ────────────────────────────────────────────────────────── */
+  // If no balances or user not loaded, show message
   if (!balances?.length || !currentUser) {
     return (
       <div className="text-center py-4 text-muted-foreground">
@@ -29,6 +38,7 @@ export function GroupBalances({ balances }) {
   }
 
   /* ───── helpers ───────────────────────────────────────────────────────── */
+  // Find the current user's balance object
   const me = balances.find((b) => b.id === currentUser._id);
   if (!me) {
     return (
@@ -38,18 +48,20 @@ export function GroupBalances({ balances }) {
     );
   }
 
+  // Map userId to user object for quick lookup
   const userMap = Object.fromEntries(balances.map((b) => [b.id, b]));
 
-  // Who owes me?
+  // List of members who owe the current user
   const owedByMembers = me.owedBy
     .map(({ from, amount }) => ({ ...userMap[from], amount }))
     .sort((a, b) => b.amount - a.amount);
 
-  // Whom do I owe?
+  // List of members the current user owes
   const owingToMembers = me.owes
     .map(({ to, amount }) => ({ ...userMap[to], amount }))
     .sort((a, b) => b.amount - a.amount);
 
+  // Check if all balances are settled
   const isAllSettledUp =
     me.totalBalance === 0 &&
     owedByMembers.length === 0 &&
@@ -70,6 +82,7 @@ export function GroupBalances({ balances }) {
                 : ""
           }`}
         >
+          {/* Show positive, negative, or zero balance */}
           {me.totalBalance > 0
             ? `+₹${me.totalBalance.toFixed(2)}`
             : me.totalBalance < 0
@@ -77,6 +90,7 @@ export function GroupBalances({ balances }) {
               : "₹0.00"}
         </p>
         <p className="text-sm text-muted-foreground mt-1">
+          {/* Show status message based on balance */}
           {me.totalBalance > 0
             ? "You are owed money"
             : me.totalBalance < 0
@@ -85,6 +99,7 @@ export function GroupBalances({ balances }) {
         </p>
       </div>
 
+      {/* If all settled, show message. Otherwise, show owed/owing lists */}
       {isAllSettledUp ? (
         <div className="text-center py-4">
           <p className="text-muted-foreground">Everyone is settled up!</p>
@@ -105,6 +120,7 @@ export function GroupBalances({ balances }) {
                     className="flex items-center justify-between"
                   >
                     <div className="flex items-center gap-2">
+                      {/* Show avatar and name of member who owes you */}
                       <Avatar className="h-8 w-8">
                         <AvatarImage src={member.imageUrl} />
                         <AvatarFallback>
@@ -113,6 +129,7 @@ export function GroupBalances({ balances }) {
                       </Avatar>
                       <span className="text-sm">{member.name}</span>
                     </div>
+                    {/* Amount owed to you */}
                     <span className="font-medium text-green-600">
                       ₹{member.amount.toFixed(2)}
                     </span>
@@ -136,6 +153,7 @@ export function GroupBalances({ balances }) {
                     className="flex items-center justify-between"
                   >
                     <div className="flex items-center gap-2">
+                      {/* Show avatar and name of member you owe */}
                       <Avatar className="h-8 w-8">
                         <AvatarImage src={member.imageUrl} />
                         <AvatarFallback>
@@ -144,6 +162,7 @@ export function GroupBalances({ balances }) {
                       </Avatar>
                       <span className="text-sm">{member.name}</span>
                     </div>
+                    {/* Amount you owe */}
                     <span className="font-medium text-red-600">
                       ₹{member.amount.toFixed(2)}
                     </span>

@@ -18,7 +18,8 @@ export const sendEmailMutation = mutation({
         html: args.html,
         text: args.text,
       });
-      return { success: true, id: result.id };
+      console.log("[RESEND] Full response (mutation):", result);
+      return { success: true, id: result.id, fullResponse: result };
     } catch (error) {
       console.error("Failed to send email (mutation):", error);
       return { success: false, error: error.message };
@@ -52,9 +53,8 @@ export const sendEmail = action({
         text: args.text,
       });
 
-      // console.log("Email sent successfully:", result);
-
-      return { success: true, id: result.id };
+  console.log("[RESEND] Full response (action):", result);
+  return { success: true, id: result.id, fullResponse: result };
     } catch (error) {
       console.error("Failed to send email:", error);
       return { success: false, error: error.message };
