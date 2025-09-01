@@ -8,8 +8,16 @@ Track shared expenses, split bills effortlessly, and settle up quickly with **Sp
 
 ---
 
-## Features
 
+## Unique Feature: Controlled Settlements
+
+> **🚀 Unlike Splitwise, only the person who is owed can initiate a settlement in SplitPay.**
+> 
+> This prevents accidental or premature settlements and ensures that only the rightful recipient can clear a debt. This is a unique safeguard not found in Splitwise!
+
+---
+
+## Features
 
 Everything you need to manage shared expenses:
 
@@ -20,14 +28,11 @@ Everything you need to manage shared expenses:
 * **Expense Analytics** – Track spending patterns and discover insights. *(under development)*
 * **Recurring Expenses** – Automatically add repeating expenses for subscriptions, rent, and more. *(under development)*
 
-
----
-
 ## How It Works
 
 Splitting expenses has never been easier:
 
-1. **Create or Join a Group** – Start a group for your roommates, trip, or event and invite friends.
+1. **Create or Join a Group** – Start a group for your roommates, trip, or event and add friends.
 2. **Add Expenses** – Record who paid and how the bill should be split.
 3. **Settle Up** – View balances and log payments when debts are cleared.
 

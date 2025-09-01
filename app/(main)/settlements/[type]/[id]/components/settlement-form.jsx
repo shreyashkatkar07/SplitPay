@@ -32,6 +32,10 @@ export default function SettlementForm({ entityType, entityData, onSuccess }) {
   if (entityType === "group" && (!entityData || !Array.isArray(entityData.balances))) {
     return <div className="text-red-500">Error: Group balances data is missing or invalid.</div>;
   }
+  // Defensive: if user, ensure netBalance is defined
+  if (entityType === "user" && (entityData == null || typeof entityData.netBalance !== 'number')) {
+    return <div className="text-red-500">Error: User balance data is missing or invalid.</div>;
+  }
   const { data: currentUser } = useConvexQuery(api.users.getCurrentUser);
   const createSettlement = useConvexAction(
     api.settlements.createSettlementWithEmail
@@ -42,7 +46,7 @@ export default function SettlementForm({ entityType, entityData, onSuccess }) {
 
   // Determine default payment direction
   let defaultPaymentType = "youPaid";
-  if (entityType === "user" && entityData.netBalance > 0) {
+  if (entityType === "user" && typeof entityData.netBalance === 'number' && entityData.netBalance > 0) {
     defaultPaymentType = "theyPaid";
   }
   // For group, will update on member select
@@ -69,7 +73,7 @@ export default function SettlementForm({ entityType, entityData, onSuccess }) {
   useEffect(() => {
     if (entityType === "group" && selectedGroupMemberId) {
       const member = entityData.balances.find((m) => m.userId === selectedGroupMemberId);
-      if (member && member.netBalance > 0) {
+      if (member && typeof member.netBalance === 'number' && member.netBalance > 0) {
         setValue("paymentType", "theyPaid");
       } else {
         setValue("paymentType", "youPaid");
@@ -166,7 +170,7 @@ export default function SettlementForm({ entityType, entityData, onSuccess }) {
   // Render the form for individual settlement
   if (entityType === "user") {
     const otherUser = entityData.counterpart;
-    const netBalance = entityData.netBalance;
+    const netBalance = typeof entityData.netBalance === 'number' ? entityData.netBalance : 0;
 
     return (
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -268,7 +272,7 @@ export default function SettlementForm({ entityType, entityData, onSuccess }) {
           <Label htmlFor="note">Note (optional)</Label>
           <Textarea
             id="note"
-            placeholder="Dinner, rent, etc."
+            placeholder="e.g. UPI ref, cash, or reason for payment"
             {...register("note")}
           />
         </div>
@@ -346,7 +350,7 @@ export default function SettlementForm({ entityType, entityData, onSuccess }) {
           if (member.netBalance < 0) {
             return (
               <div className="text-amber-600 text-sm mt-2">
-                You cannot settle up with this member because they owe you. Only the person who is owed can initiate a settlement.
+                You cannot settle up with this member because you owe them. Only the person who is owed can initiate a settlement.
               </div>
             );
           }

@@ -225,7 +225,7 @@ export function ExpenseForm({ type = "individual", onSuccess }) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="repeat">Repeat</Label>
+            {/* <Label htmlFor="repeat">Repeat</Label>
             <select id="repeat" className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" {...register("repeat")}> 
               <option value="off">Off</option>
               <option value="daily">Daily</option>
@@ -235,9 +235,9 @@ export function ExpenseForm({ type = "individual", onSuccess }) {
             </select>
             {errors.repeat && (
               <p className="text-sm text-red-500">{errors.repeat.message}</p>
-            )}
+            )} */}
             {/* End date and count only if repeat is not off */}
-            {watch("repeat") !== "off" && (
+            {/* {watch("repeat") !== "off" && (
               <div className="flex flex-col gap-2 mt-2">
                 <div>
                   <Label htmlFor="repeatEndDate">Repeat Until</Label>
@@ -258,7 +258,7 @@ export function ExpenseForm({ type = "individual", onSuccess }) {
                   />
                 </div>
               </div>
-            )}
+            )} */}
           </div>
         </div>
 

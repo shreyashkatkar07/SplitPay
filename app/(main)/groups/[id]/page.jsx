@@ -124,14 +124,14 @@ const GroupPage = () => {
               </CardHeader>
               <CardContent>
                 <GroupMembers members={members} />
-                {isAdmin ? (
+                {/* {isAdmin ? (
                   <>
                     <AddGroupMember groupId={params.id} />
                     <DeleteGroup groupId={params.id} onDeleted={() => router.replace('/dashboard')} />
                   </>
                 ) : (
                   <LeaveGroup groupId={params.id} onLeft={() => router.replace('/dashboard')} />
-                )}
+                )} */}
               </CardContent>
             </Card>
           </div>

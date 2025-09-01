@@ -21,14 +21,28 @@ import React, { useState } from "react";
 import { BarLoader } from "react-spinners";
 
 const PersonPage = () => {
+  // All hooks and variable declarations at the top
   const params = useParams();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("profile");
-
   const { data, isLoading } = useConvexQuery(
     api.expenses.getExpensesBetweenUsers,
     { userId: params.id }
   );
+  const otherUser = data?.otherUser;
+  const expenses = data?.expenses || [];
+  const settlements = data?.settlements || [];
+  const balance = data?.balance || 0;
+
+  // Defensive: if otherUser is not found, show fallback UI
+  if (!isLoading && !otherUser) {
+    return (
+      <div className="container mx-auto py-12 text-center">
+        <h2 className="text-2xl font-bold mb-4">User not found</h2>
+        <Button onClick={() => router.replace('/dashboard')}>Go to Dashboard</Button>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -37,11 +51,6 @@ const PersonPage = () => {
       </div>
     );
   }
-
-  const otherUser = data?.otherUser;
-  const expenses = data?.expenses || [];
-  const settlements = data?.settlements || [];
-  const balance = data?.balance || 0;
 
   return (
     <div className="container mx-auto py-6 max-w-4xl">
