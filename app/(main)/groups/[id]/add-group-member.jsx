@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Command, CommandInput, CommandList, CommandItem, CommandEmpty } from "@/components/ui/command";
 import { toast } from "sonner";
 import { api } from "@/convex/_generated/api";
-import { useConvexMutation } from "@/hooks/use-convex-query";
+import { useConvexMutation } from "@/hooks/use-convex-mutation";
 import { useConvexQuery } from "@/hooks/use-convex-query";
 
 

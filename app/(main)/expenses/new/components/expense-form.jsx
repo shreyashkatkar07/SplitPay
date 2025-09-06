@@ -47,7 +47,7 @@ const expenseSchema = z.object({
   repeatCount: z.coerce.number().optional(),
 });
 
-export function ExpenseForm({ type = "individual", onSuccess }) {
+export function ExpenseForm({ type , onSuccess }) {
   const [participants, setParticipants] = useState([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedGroup, setSelectedGroup] = useState(null);

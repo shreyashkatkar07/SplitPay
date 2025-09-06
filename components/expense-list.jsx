@@ -2,7 +2,8 @@
 // ExpenseList displays a list of expenses with details, split info, and delete functionality.
 // Uses custom hooks for Convex backend and UI components for consistent design.
 import { api } from '@/convex/_generated/api'
-import { useConvexMutation, useConvexQuery } from '@/hooks/use-convex-query'
+import { useConvexMutation } from '@/hooks/use-convex-mutation'
+import { useConvexQuery } from '@/hooks/use-convex-query'
 import React from 'react'
 import { Card, CardContent,} from './ui/card';
 import { getCategoryById, getCategoryIcon } from '@/lib/expense-categories';

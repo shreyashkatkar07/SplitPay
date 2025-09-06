@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { api } from "@/convex/_generated/api";
-import { useConvexMutation } from "@/hooks/use-convex-query";
+import { useConvexMutation } from "@/hooks/use-convex-mutation";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 

@@ -2,7 +2,7 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import React from "react";
 import { ExpenseForm } from "./components/expense-form";
 import { ArrowLeft } from "lucide-react";
@@ -10,6 +10,14 @@ import { Button } from "@/components/ui/button";
 
 const NewExpensePage = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const tabParam = searchParams?.get('tab');
+  const [tab, setTab] = React.useState(tabParam === 'group' ? 'group' : 'individual');
+
+  // Update tab when query param changes
+  React.useEffect(() => {
+    setTab(tabParam === 'group' ? 'group' : 'individual');
+  }, [tabParam]);
 
   return (
     <div className="container max-w-3xl mx-auto py-6">
@@ -31,7 +39,8 @@ const NewExpensePage = () => {
 
       <Card>
         <CardContent>
-          <Tabs defaultValue="individual" className="pb-3">
+          {/* Dynamically set defaultValue based on navigation context */}
+          <Tabs value={tab} onValueChange={setTab} className="pb-3">
             <TabsList className={"grid w-full grid-cols-2"}>
               <TabsTrigger value="individual">Individual Expense</TabsTrigger>
               <TabsTrigger value="group">Group Expense</TabsTrigger>

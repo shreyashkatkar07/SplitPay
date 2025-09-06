@@ -2,7 +2,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { FEATURES, STEPS, TESTIMONIALS } from "@/lib/landing";
+import { FEATURES, COMING_SOON_FEATURES, STEPS, TESTIMONIALS } from "@/lib/landing";
 import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -60,6 +60,14 @@ export default function Home() {
             Features
           </Badge>
 
+          {/* Unique Feature Highlight Section */}
+          <div className="mx-auto my-8 max-w-3xl p-6 rounded-xl shadow-lg bg-purple-50 border border-purple-200 flex flex-col items-center text-center">
+            <span className="inline-block bg-purple-200 text-purple-800 text-sm md:text-base font-semibold px-3 py-1 rounded-full mb-3">Unique Feature</span>
+            <h2 className="text-2xl md:text-3xl font-bold text-purple-800 mb-2">Controlled Settlements</h2>
+            <p className="text-purple-700 text-base md:text-lg mb-2">Only the person who is <span className="font-semibold">owed</span> can settle up—adding a layer of control and security not found in Splitwise.</p>
+            <p className="text-purple-600 text-sm md:text-base">This ensures settlements are always secure and transparent, giving you peace of mind.</p>
+          </div>
+
           <h2 className="gradient-title mt-2 text-3xl md:text-4xl">
             Everything you need to split expenses
           </h2>
@@ -89,6 +97,22 @@ export default function Home() {
                 <p className="text-gray-500 text-base md:text-lg">{description}</p>
               </Card>
             ))}
+          </div>
+
+          {/* Coming Soon Section */}
+          <div className="mx-auto mt-16 max-w-5xl">
+            <h2 className="gradient-title text-2xl md:text-3xl font-bold mb-6 text-center">Coming Soon</h2>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {COMING_SOON_FEATURES.map(({title,Icon,bg,color,description}) => (
+                <Card key={title} className="flex flex-col items-center p-6 space-y-4 text-center opacity-70">
+                  <div className={`rounded-full p-3 ${bg}`}>
+                    <Icon className={`h-6 w-6 ${color}`} />
+                  </div>
+                  <h3 className="text-xl font-bold">{title}</h3>
+                  <p className="text-gray-500 text-base md:text-lg">{description}</p>
+                </Card>
+              ))}
+            </div>
           </div>
 
         </div>
